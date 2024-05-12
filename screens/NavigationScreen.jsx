@@ -1,26 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StatusBar, Pressable, Button, Keyboard } from 'react-native';
+import { View, Text, StatusBar, Pressable, Button, Keyboard, Image } from 'react-native';
 import MapComponent from '../components/MapComponent';
 import { Searchbar, FAB } from 'react-native-paper';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
-import Geolocation from '@react-native-community/geolocation';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Voice from '@react-native-voice/voice';
 import { useAtom } from 'jotai';
 import { startPointAtom, searchTextAtom, userLocationAtom } from '../atoms'
 
 const NavigationScreen = () => {
 
   const mapRef = useRef(null);
-
-
   const [startPoint, setStartPoint] = useAtom(startPointAtom)
-
   const [searchText, setSearchText] = useAtom(searchTextAtom);
   const [userLocation, setUserLocation] = useAtom(userLocationAtom);
-
   const [text, setText] = useState()
+  const [isListening ,setIsListening] = useState(false)
 
+  useEffect(() => {
+    Voice.onSpeechResults = (event) => {
+      setText(event.value[0]);
+      setIsListening(false);
+      Voice.stop();
+      console.log('Recognized text:', event.value[0]);
+    };
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
+
+
+  const handleVoiceRecognition = async () => {
+    console.log("first")
+    try {
+      setIsListening(true);
+      await Voice.start('tr-TR');
+    } catch (error) {
+      console.error('Voice recognition error:', error);
+    }
+  };
 
   const handleCenter = () => {
     if (userLocation) { // Check if mapRef.current is defined
@@ -50,7 +71,14 @@ const NavigationScreen = () => {
     <View style={{ flex: 1 }}>
       <StatusBar translucent backgroundColor="transparent" />
       <Searchbar
-        style={{ fontSize: 20, position: "absolute", marginTop: 48, marginHorizontal: 8 }}
+        inputStyle={{ fontSize: 18, color: "white" }}
+        right={() =>
+          <Pressable onPress={handleVoiceRecognition}>
+            <Ionicons name="mic" size={34} />
+          </Pressable>
+        }
+        icon={() => <Image source={require("../assets/mapIcon.png")} style={{ width: 22, height: 34 }} />}
+        style={{ position: "absolute", marginTop: 48, marginHorizontal: 8, paddingRight: 14 }}
         placeholder="Search location"
         placeholderTextColor="#9B9DA2"
         onChangeText={(text) => setText(text)}
@@ -58,6 +86,7 @@ const NavigationScreen = () => {
         onSubmitEditing={handleSubmit}
       />
       <FAB
+        variant="surface"
         icon={({ size, color }) => <FontAwesome6 name="location-crosshairs" size={size} color={color} />}
         style={{
           elevation: 6,
@@ -65,17 +94,17 @@ const NavigationScreen = () => {
           position: 'absolute',
           bottom: 20,
           right: 15,
-          backgroundColor: '#2B2732',
           borderRadius: 20,
-          alignItems: 'center', // Center the content horizontally
-          justifyContent: 'center', // Center the content vertically
-          width: 64, // Set a fixed width to ensure the button is square
-          height: 64, // Set a fixed height to ensure the button is square
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 64,
+          height: 64,
         }}
-        onPress={handleCenter} // Make sure to invoke the onPress function
+        onPress={handleCenter}
       />
       {searchText &&
         <FAB
+          variant="surface"
           icon={({ size, color }) => <MaterialIcons name="directions" size={size} color={color} />}
           label='Start route'
           style={{
@@ -84,7 +113,6 @@ const NavigationScreen = () => {
             position: 'absolute',
             bottom: 20,
             left: 15,
-            backgroundColor: '#2B2732',
             borderRadius: 20,
             alignItems: 'center', // Center the content horizontally
             justifyContent: 'center', // Center the content vertically

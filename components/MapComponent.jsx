@@ -1,37 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StatusBar, Pressable, Button } from 'react-native';
+import { Appearance } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import CompassHeading from 'react-native-compass-heading';
 import Geolocation from '@react-native-community/geolocation';
 import MapViewDirections from 'react-native-maps-directions';
 import darkMap from "../darkMapStyles.json"
 import { useAtom } from 'jotai';
-import { searchTextAtom, userLocationAtom, startPointAtom } from '../atoms'
+import { searchTextAtom, userLocationAtom, startPointAtom, themeAtom } from '../atoms'
+import Tts from 'react-native-tts';
 
 
 const MapComponent = ({ mapRef }) => {
 
+  // Atom States
+  const [systemTheme, setSystemTheme] = useAtom(themeAtom);
   const [userLocation, setUserLocation] = useAtom(userLocationAtom);
   const [searchText, setSearchText] = useAtom(searchTextAtom);
-
-
   const [startPoint, setStartPoint] = useAtom(startPointAtom)
 
-
-
+  // React  States
   const [currentStep, setCurrentStep] = useState(0);
   const [angle, setAngle] = useState(0);
   const [steps, setSteps] = useState(0);
-
+  const [voiceStep, setVoiceStep] = useState("")
 
   useEffect(() => {
     getCurrentLocation();
   }, []);
 
   useEffect(() => {
-    console.log("searchText: ", searchText)
-    console.log("startPoint: ", startPoint)
-  }, [searchText, startPoint])
+    Tts.speak(voiceStep)
+  }, [voiceStep])
 
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
@@ -43,9 +42,6 @@ const MapComponent = ({ mapRef }) => {
       { enableHighAccuracy: false, timeout: 25000, maximumAge: 3600000 }
     );
   };
-
-
-
 
 
   useEffect(() => {
@@ -76,22 +72,29 @@ const MapComponent = ({ mapRef }) => {
       if (Array.isArray(steps) && steps.length > 0) {
         steps.forEach((step, index) => {
           const { latitude, longitude } = userLocation;
-          const { end_location } = step;
-          const distance = calculateDistance(latitude, longitude, end_location.lat, end_location.lng);
-          const proximityThreshold = 20; // Adjust as needed
+          const { start_location } = step;
+          const distance = calculateDistance(latitude, longitude, start_location.lat, start_location.lng);
+          const proximityThreshold = 10; // Adjust as needed
           if (distance <= proximityThreshold) {
+            setVoiceStep(removeHtmlTags(step.html_instructions))
             console.log(`Approaching Step ${index + 1}: ${removeHtmlTags(step.html_instructions)}`);
-            // Optionally, you can do something when approaching a step, like updating the current step state
             setCurrentStep(index + 1);
+              if (index < steps.length - 1) {
+              const nextStep = steps[index + 1];
+              console.log(`You've completed Step ${index + 1}.`);
+            } else {
+              console.log("Congratulations! You've completed the journey.");
+              clearInterval(proximityCheckInterval);
+            }
           }
         });
       }
     };
-
+  
     const proximityCheckInterval = setInterval(() => {
       checkProximity();
-    }, 2000); // Check every 5 seconds, adjust as needed
-
+    }, 800); 
+  
     return () => clearInterval(proximityCheckInterval);
   }, [steps, userLocation]);
 
@@ -100,7 +103,6 @@ const MapComponent = ({ mapRef }) => {
     if (!lat1 || !lon1 || !lat2 || !lon2) {
       return "Invalid inputs!"; // Handle invalid input values
     }
-
     const R = 6371;
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -108,11 +110,9 @@ const MapComponent = ({ mapRef }) => {
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
     if (a === 1) {
       return 0; // Handle cases where a = 1 to avoid NaN
     }
-
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c * 1000; // Distance in meters
     return distance;
@@ -121,6 +121,7 @@ const MapComponent = ({ mapRef }) => {
   function removeHtmlTags(htmlString) {
     return htmlString.replace(/<[^>]*>/g, '');
   }
+
   useEffect(() => {
     if (Array.isArray(steps) && steps.length > 0) {
       console.log("first")
@@ -138,6 +139,8 @@ const MapComponent = ({ mapRef }) => {
     }
   }, [steps])
 
+
+
   if (userLocation) {
     return (
       <MapView
@@ -149,7 +152,7 @@ const MapComponent = ({ mapRef }) => {
           latitudeDelta: 0.0043,
           longitudeDelta: 0.0034
         }}
-        customMapStyle={darkMap}
+        customMapStyle={systemTheme === "dark" ? darkMap : []}
         ref={mapRef}
         initialRegion={{
           latitude: userLocation.latitude,
@@ -174,9 +177,9 @@ const MapComponent = ({ mapRef }) => {
           origin={startPoint}
           destination={searchText}
           apikey={"AIzaSyCOwMmlEf95NH9VCJj7Ksb-4RIJZFruBu4"}
-          strokeWidth={3}
+          strokeWidth={6}
           mode={"WALKING"}
-          strokeColor="hotpink"
+          strokeColor="#00affe"
           optimizeWaypoints={true}
           onStart={(params) => {
             console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
