@@ -5,44 +5,46 @@
 This project is a Google Maps clone that focuses on core navigation features. It provides step-by-step directions between locations with visual and voice guidance options. Users can choose different themes, including a black light theme, and select their preferred language for navigation instructions. The app also supports voice search for hands-free location queries.
 
 ## Features
-- User authentication
-- Real-time notifications for available leftover items
-- Geolocation services to view bakery locations
-- Search functionality for specific items
+- Turkish & English support
+- Step-by-step directions
+- Customizable themes 
+- Voice search 
 
 
 ## Screenshots
 
 ### Onboarding
-<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/19b46d3f-bea8-4b58-9fa3-13c6694ac2e9" alt="Onboard" width="200" />&nbsp;&nbsp;<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/870df9bd-1348-4d96-9fdd-f8dd7f51d62b" alt="Login" width="200" />&nbsp;&nbsp;<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/4bc2206c-9635-4a62-9b14-8600693e9de2" alt="Register" width="200" />
+
 
 ------------
 
 ### Home
-<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/ee586ca1-7720-41a4-8931-fc0b1de5e52a" alt="Home" width="200" />&nbsp;&nbsp;<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/bbdf7467-6df4-48d0-8668-10bc38b5c8f4" alt="Past Details" width="200" />
+
 
 ------------
 
 ### Search
-<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/339ee989-4552-40ea-b99b-a5ff08b8b95a" alt="Search" width="200" />&nbsp;&nbsp;<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/ec424808-429f-4bd7-9289-c06bb55247ce" alt="Search Not Found" width="200" />
+
 
 ------------
 
 ### Settings
-<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/7747c1ad-5ab5-402b-af14-a7382762ab67" alt="Settings" width="200" />&nbsp;&nbsp;<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/c693a304-eafd-400f-9323-d418ac290fec" alt="User Details" width="200" />&nbsp;&nbsp;<img src="https://github.com/kagantemizkan/bilokma/assets/46727689/06193480-34b4-4a49-b663-580b67ad69ca" alt="Geolocation" width="200" />
+
 
 ## Technologies Used
 
 - React Native
-- Firebase
-- NativeWind
-- LottieFiles
-- Expo Blur View
+- Jotai
+- react-native-tts
+- i18n
+- @react-native-async-storage/async-storage
+- React Native Paper
+- @react-native-voice/voice
+- @react-native-community/geolocation
+- react-native-compass-heading
+- react-native-maps-directions
+- react-native-maps
 
-## Team
-
-- Kağan Temizkan - Developer
-- Deniz Ilgın Koca - Firebase Setup
 
 ## Installation and Setup
 
@@ -52,18 +54,4 @@ This project is a Google Maps clone that focuses on core navigation features. It
 4. Start the app using `npm run start`.
 
 
-
-## Contributing
-
-We welcome contributions to improve this project. To contribute:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Commit your changes (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature/your-feature`).
-5. Create a new Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/kagantemizkan/bilokma/blob/main/LICENSE) file for details.
 
