@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="460" height="300" src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/462e075d-cef4-476f-8af0-e031da96a7ec">
+  <img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/462e075d-cef4-476f-8af0-e031da96a7ec">
 </p>
 
 ### About Project
