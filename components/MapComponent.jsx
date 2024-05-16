@@ -8,9 +8,11 @@ import darkMap from "../darkMapStyles.json"
 import { useAtom } from 'jotai';
 import { searchTextAtom, userLocationAtom, startPointAtom, themeAtom } from '../atoms'
 import Tts from 'react-native-tts';
+import { useTranslation } from 'react-i18next'
 
 
 const MapComponent = ({ mapRef }) => {
+  const { t, i18n } = useTranslation()
 
   // Atom States
   const [systemTheme, setSystemTheme] = useAtom(themeAtom);
@@ -29,7 +31,12 @@ const MapComponent = ({ mapRef }) => {
   }, []);
 
   useEffect(() => {
-    Tts.speak(voiceStep)
+    Tts.setDefaultLanguage(i18n.language)
+    Tts.speak(voiceStep, {
+      androidParams: {
+        KEY_PARAM_VOLUME: 1,
+      }
+    })
   }, [voiceStep])
 
   const getCurrentLocation = () => {
@@ -174,6 +181,7 @@ const MapComponent = ({ mapRef }) => {
         )}
         { searchText && startPoint && 
         <MapViewDirections
+          language={i18n.language}
           origin={startPoint}
           destination={searchText}
           apikey={"AIzaSyCOwMmlEf95NH9VCJj7Ksb-4RIJZFruBu4"}

@@ -1,5 +1,5 @@
 {
-  "name": "mapsForBlinds",
+  "name": "Maps",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,11 +10,15 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/geolocation": "^3.2.1",
+    "@react-native-community/slider": "^4.5.2",
     "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/native": "^6.1.17",
+    "i18next": "^23.11.4",
     "jotai": "^2.8.0",
     "react": "18.2.0",
+    "react-i18next": "^14.1.1",
     "react-native": "0.74.1",
     "react-native-compass-heading": "^1.5.0",
     "react-native-maps": "^1.15.1",

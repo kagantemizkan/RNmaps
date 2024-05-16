@@ -1,4 +1,4 @@
-package com.mapsforblinds
+package com.maps
 
 import android.app.Application
 import com.facebook.react.PackageList

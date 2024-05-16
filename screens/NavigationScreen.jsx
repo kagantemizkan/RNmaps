@@ -7,16 +7,19 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Voice from '@react-native-voice/voice';
 import { useAtom } from 'jotai';
-import { startPointAtom, searchTextAtom, userLocationAtom } from '../atoms'
+import { startPointAtom, searchTextAtom, userLocationAtom, themeAtom } from '../atoms'
+import { useTranslation } from 'react-i18next';
 
 const NavigationScreen = () => {
-
+  const [theme, setTheme] = useAtom(themeAtom);
+  const { t } = useTranslation();
+  // console.log("i18n ready: ",ready)
   const mapRef = useRef(null);
   const [startPoint, setStartPoint] = useAtom(startPointAtom)
   const [searchText, setSearchText] = useAtom(searchTextAtom);
   const [userLocation, setUserLocation] = useAtom(userLocationAtom);
   const [text, setText] = useState()
-  const [isListening ,setIsListening] = useState(false)
+  const [isListening, setIsListening] = useState(false)
 
   useEffect(() => {
     Voice.onSpeechResults = (event) => {
@@ -71,15 +74,20 @@ const NavigationScreen = () => {
     <View style={{ flex: 1 }}>
       <StatusBar translucent backgroundColor="transparent" />
       <Searchbar
-        inputStyle={{ fontSize: 18, color: "white" }}
+        elevation={3}
+        inputStyle={{
+          color: theme === "dark" ? "white" : "black",
+          fontSize: 18,
+          minHeight: 0
+        }}
         right={() =>
           <Pressable onPress={handleVoiceRecognition}>
-            <Ionicons name="mic" size={34} />
+            <Ionicons name="mic" size={28} color={theme === "dark" ? "#CBC4CC" : "gray"} />
           </Pressable>
         }
         icon={() => <Image source={require("../assets/mapIcon.png")} style={{ width: 22, height: 34 }} />}
-        style={{ position: "absolute", marginTop: 48, marginHorizontal: 8, paddingRight: 14 }}
-        placeholder="Search location"
+        style={{ position: "absolute", marginTop: 44, marginHorizontal: 8, paddingRight: 14 }}
+        placeholder={t("searchLocation")}
         placeholderTextColor="#9B9DA2"
         onChangeText={(text) => setText(text)}
         value={text}
@@ -89,7 +97,7 @@ const NavigationScreen = () => {
         variant="surface"
         icon={({ size, color }) => <FontAwesome6 name="location-crosshairs" size={size} color={color} />}
         style={{
-          elevation: 6,
+          elevation: 3,
           zIndex: 10,
           position: 'absolute',
           bottom: 20,
@@ -108,7 +116,7 @@ const NavigationScreen = () => {
           icon={({ size, color }) => <MaterialIcons name="directions" size={size} color={color} />}
           label='Start route'
           style={{
-            elevation: 6,
+            elevation: 3,
             zIndex: 10,
             position: 'absolute',
             bottom: 20,
