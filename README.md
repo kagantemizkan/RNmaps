@@ -2,8 +2,8 @@
   <img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/462e075d-cef4-476f-8af0-e031da96a7ec">
 </p>
 
-<img src="./assets/hello-dark.gif#gh-light-mode-only" align="right" height="220" width="210" />
-<img src="./assets/hello-light.gif#gh-dark-mode-only" align="right" height="220" width="210" />
+<img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/462e075d-cef4-476f-8af0-e031da96a7ec" align="right" />
+<img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/462e075d-cef4-476f-8af0-e031da96a7ec" align="right" />
 
 <h1>Ola Amigos!</h1>
 <h2>Me Ritam</h2>
