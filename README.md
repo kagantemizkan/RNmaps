@@ -1,4 +1,6 @@
-![maps](https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/b1178c94-2fb6-43de-adac-76257f2f401a) ##Maps
+ <p align="center">
+  <img width="460" height="300" src="(https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/b1178c94-2fb6-43de-adac-76257f2f401a)">
+</p>
 
 ### About Project
 This project is a React Native mobile application developed during the Google Developer Student Community Hackathon. It aims to reduce food waste by facilitating communication between bakeries and users who are interested in purchasing leftover items late at night.
