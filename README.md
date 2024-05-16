@@ -1,4 +1,4 @@
-![maps](https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/a67a9f32-21a6-48b4-b4cb-06abfe872cbf)
+![maps](https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/a67a9f32-21a6-48b4-b4cb-06abfe872cbf | width=100)
 
 
 ### About Project
