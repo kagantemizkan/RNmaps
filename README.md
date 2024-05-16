@@ -1,8 +1,8 @@
 <img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/85adde05-ba52-4f98-b8be-5e5c28b64a4c" alt="maps" width="300">
 
 
-### About Project
-This project is a React Native mobile application developed during the Google Developer Student Community Hackathon. It aims to reduce food waste by facilitating communication between bakeries and users who are interested in purchasing leftover items late at night.
+## About Project
+This project is a Google Maps clone that focuses on core navigation features. It provides step-by-step directions between locations with visual and voice guidance options. Users can choose different themes, including a black light theme, and select their preferred language for navigation instructions. The app also supports voice search for hands-free location queries.
 
 ## Features
 - User authentication
