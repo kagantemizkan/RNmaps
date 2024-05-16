@@ -1,4 +1,4 @@
-<img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/85adde05-ba52-4f98-b8be-5e5c28b64a4c" alt="maps" width="300" height="200">
+<img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/85adde05-ba52-4f98-b8be-5e5c28b64a4c" alt="maps" width="300">
 
 
 ### About Project
