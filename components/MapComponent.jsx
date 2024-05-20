@@ -1,17 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Appearance } from 'react-native';
+import React, { useState, useEffect } from 'react';
+// Map releated 
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
 import CompassHeading from 'react-native-compass-heading';
 import Geolocation from '@react-native-community/geolocation';
-import MapViewDirections from 'react-native-maps-directions';
+// Dark Map Style Json
 import darkMap from "../darkMapStyles.json"
-import { useAtom } from 'jotai';
-import { searchTextAtom, userLocationAtom, startPointAtom, themeAtom } from '../atoms'
+// Text-To-Speech
 import Tts from 'react-native-tts';
+// i18n
 import { useTranslation } from 'react-i18next'
-
+// JOTAI
+import { useAtom } from 'jotai';
+import { speechRateAtom, speechVolumeAtom, searchTextAtom, userLocationAtom, startPointAtom, themeAtom } from '../atoms'
 
 const MapComponent = ({ mapRef }) => {
+
+  // i18n
   const { t, i18n } = useTranslation()
 
   // Atom States
@@ -19,6 +24,8 @@ const MapComponent = ({ mapRef }) => {
   const [userLocation, setUserLocation] = useAtom(userLocationAtom);
   const [searchText, setSearchText] = useAtom(searchTextAtom);
   const [startPoint, setStartPoint] = useAtom(startPointAtom)
+  const [speechVolume, setSpeechVolume] = useAtom(speechVolumeAtom);
+  const [speechRate, setSpeechRate] = useAtom(speechRateAtom);
 
   // React  States
   const [currentStep, setCurrentStep] = useState(0);
@@ -26,31 +33,23 @@ const MapComponent = ({ mapRef }) => {
   const [steps, setSteps] = useState(0);
   const [voiceStep, setVoiceStep] = useState("")
 
-  useEffect(() => {
-    getCurrentLocation();
-  }, []);
+  // useEffects
 
+
+
+
+  // On voiceStep change TTS the routes 
   useEffect(() => {
     Tts.setDefaultLanguage(i18n.language)
+    Tts.setDefaultRate(speechRate);
     Tts.speak(voiceStep, {
       androidParams: {
-        KEY_PARAM_VOLUME: 1,
+        KEY_PARAM_VOLUME: speechVolume,
       }
     })
   }, [voiceStep])
 
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation({ latitude, longitude });
-      },
-      error => console.log(error.message),
-      { enableHighAccuracy: false, timeout: 25000, maximumAge: 3600000 }
-    );
-  };
-
-
+  // Update the user location
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
       (position) => {
@@ -65,15 +64,7 @@ const MapComponent = ({ mapRef }) => {
   }, []);
 
 
-
-  const updateAngle = () => {
-    const degree_update_rate = 3;
-    CompassHeading.start(degree_update_rate, ({ heading }) => {
-      const angle2D = heading;
-      setAngle(angle2D);
-    });
-  };
-
+  // TTS, route and steps releated 
   useEffect(() => {
     const checkProximity = () => {
       if (Array.isArray(steps) && steps.length > 0) {
@@ -106,6 +97,39 @@ const MapComponent = ({ mapRef }) => {
   }, [steps, userLocation]);
 
 
+  // console.log the steps
+  useEffect(() => {
+    if (Array.isArray(steps) && steps.length > 0) {
+      console.log("first")
+      steps.forEach((direction, index) => {
+        console.log(`Step ${index + 1}:`);
+        // console.log(`Distance: ${direction.distance.text} (${direction.distance.value} meters)`);
+        // console.log(`Duration: ${direction.duration.text} (${direction.duration.value} seconds)`);
+        console.log(`Instructions: ${removeHtmlTags(direction.html_instructions)}`);
+        // console.log(`Polyline Points: ${direction.polyline.points}`);
+        console.log(`Start Location: (${direction.start_location.lat}, ${direction.start_location.lng})`);
+        console.log(`End Location: (${direction.end_location.lat}, ${direction.end_location.lng})`);
+        // console.log(`Travel Mode: ${direction.travel_mode}`);
+        console.log("\n");
+      });
+    }
+  }, [steps])
+
+  // FUNCTIONS //
+
+
+
+  // Get users heading
+  const updateAngle = () => {
+    const degree_update_rate = 3;
+    CompassHeading.start(degree_update_rate, ({ heading }) => {
+      const angle2D = heading;
+      setAngle(angle2D);
+    });
+  };
+
+
+  // Calculate distance between two points
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     if (!lat1 || !lon1 || !lat2 || !lon2) {
       return "Invalid inputs!"; // Handle invalid input values
@@ -125,32 +149,15 @@ const MapComponent = ({ mapRef }) => {
     return distance;
   };
 
+  // Remove html tags from instructions
   function removeHtmlTags(htmlString) {
     return htmlString.replace(/<[^>]*>/g, '');
   }
 
-  useEffect(() => {
-    if (Array.isArray(steps) && steps.length > 0) {
-      console.log("first")
-      steps.forEach((direction, index) => {
-        console.log(`Step ${index + 1}:`);
-        // console.log(`Distance: ${direction.distance.text} (${direction.distance.value} meters)`);
-        // console.log(`Duration: ${direction.duration.text} (${direction.duration.value} seconds)`);
-        console.log(`Instructions: ${removeHtmlTags(direction.html_instructions)}`);
-        // console.log(`Polyline Points: ${direction.polyline.points}`);
-        console.log(`Start Location: (${direction.start_location.lat}, ${direction.start_location.lng})`);
-        console.log(`End Location: (${direction.end_location.lat}, ${direction.end_location.lng})`);
-        // console.log(`Travel Mode: ${direction.travel_mode}`);
-        console.log("\n");
-      });
-    }
-  }, [steps])
-
-
 
   if (userLocation) {
     return (
-      <MapView
+      <MapView  
         provider={PROVIDER_GOOGLE}
         style={{ flex: 1, zIndex: -5 }}
         region={{

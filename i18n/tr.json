@@ -2,14 +2,23 @@
   "searchLocation": "Konum ara",
   "map": "Harita",
   "settings": "Ayarlar",
+  "aboutApp": "Uygulama Hakkında",
+  "appDescription": "Bu uygulama, üniversite projesi kapsamında geliştirilmiş bir harita uygulamasıdır.",
+  "appFeatures": "Özellikler:\n- İngilizce ve Türkçe dil desteği \n- Karanlık ve koyu tema seçeneği \n- Erişilebilirlik özellikleri",
+  "appProjectInfo": "Erişilebilirlik odaklı bir harita uygulaması olarak üniversite projesi kapsamında yapılmıştır.",
   "colorScheme": "Uygulama Teması",
   "language": "Dil",
-  "speechVolume": "Ses Seviyesi",
+  "speechSettings": "Ses Ayarları",
+  "speechVolume": "Ses Düzeyi",
+  "speechRate": "Ses Hızı",
   "info": "Uygulama Hakkında",
   "systemDefault": "Sistem (Varsayılan)",
   "dark": "Koyu",
   "light": "Açık",
   "turkish": "Türkçe",
   "english": "İngilizce",
-  "ok": "Tamam"
+  "ok": "Tamam",
+  "tabBarMap": "Harita ekranı.",
+  "tabBarSettings": "Ayarlar ekranı"
+
 }

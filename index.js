@@ -3,8 +3,9 @@
  */
 
 import React, { useRef, useEffect, useState } from 'react';
-import { AppRegistry, AppState, LogBox } from 'react-native';
-import i18n from './i18n/i18n';
+import { AppRegistry, AppState } from 'react-native';
+import i18n from './i18n/i18n'; // needs to be here because
+import 'react-native-gesture-handler';
 import App from './App';
 import { name as appName } from './app.json';
 import { DefaultTheme, MD3DarkTheme, Provider as PaperProvider } from 'react-native-paper';
@@ -13,10 +14,12 @@ import { useAtom } from 'jotai';
 import { themeAtom } from './atoms';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 export default function Main() {
   const { t, i18n } = useTranslation()
+
 
   const [theme, setTheme] = useAtom(themeAtom);
   const [appReady, setAppReady] = useState(false)
@@ -43,7 +46,7 @@ export default function Main() {
   };
 
 
-  
+
   const storeLanguageData = async (value) => {
     try {
       await AsyncStorage.setItem('theme', value);
@@ -65,7 +68,7 @@ export default function Main() {
       console.log("Error getThemeData: ", e)
     }
   };
-  
+
 
 
   useEffect(() => {
@@ -84,9 +87,9 @@ export default function Main() {
       }
     };
     fetchData()
-    .then(() => {
-      setAppReady(true)
-    })
+      .then(() => {
+        setAppReady(true)
+      })
   }, []);
 
 
@@ -94,29 +97,32 @@ export default function Main() {
 
   if (appReady) {
     return (
-      <PaperProvider theme={theme === 'dark' ?
-        {
-          ...MD3DarkTheme,
-          colors: {
-            ...MD3DarkTheme.colors,
-            background: "#141218",
-            primary: "#CBC4CC",
-            secondaryContainer: "#004A77",
-          },
-        }
-        :
-        {
-          ...DefaultTheme,
-          colors: {
-            ...DefaultTheme.colors,
-            background: "#FEF7FF",
-            primary: "gray",
-            secondaryContainer: "#BEC1C4",
-          },
-        }
-      }>
-        <App />
-      </PaperProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <PaperProvider theme={theme === 'dark' ?
+          {
+            ...MD3DarkTheme,
+            colors: {
+              ...MD3DarkTheme.colors,
+              background: "#141218",
+              primary: "#CBC4CC",
+              secondaryContainer: "#004A77",
+            },
+          }
+          :
+          {
+            ...DefaultTheme,
+            colors: {
+              ...DefaultTheme.colors,
+              background: "#FEF7FF",
+              primary: "gray",
+              secondaryContainer: "#BEC1C4",
+            },
+          }
+        }>
+          <App />
+        </PaperProvider>
+      </GestureHandlerRootView>
+
     );
   }
 }
