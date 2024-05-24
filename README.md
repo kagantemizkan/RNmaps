@@ -13,7 +13,7 @@ This project is a Google Maps clone that focuses on core navigation features. It
 
 ## Screenshots
 ### Onboarding
-<img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/64543788-bc8f-41dc-bc34-aaaae7ab022a" alt="maps" width="240" />
+<img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/64543788-bc8f-41dc-bc34-aaaae7ab022a" alt="maps" width="260" />
 <img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/3febbfbd-f26a-4b92-bada-ed49d7919549" alt="maps" width="500" />
 
 <video src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/95d82f03-e323-4b8b-81d5-59b761938842" alt="maps" width="1000" />
