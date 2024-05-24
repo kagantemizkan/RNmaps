@@ -13,7 +13,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 // JOTAI
 import { useAtom } from 'jotai';
-import { themeAtom } from './atoms';
+import { themeAtom, searchTextAtom } from './atoms';
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -30,6 +30,8 @@ const SettingsStack = () => {
 
 const AppNavigator = () => {
     const [theme, setTheme] = useAtom(themeAtom);
+    const [searchText, setSearchText] = useAtom(searchTextAtom);
+
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -51,12 +53,13 @@ const AppNavigator = () => {
             background: "rgb(254,247,255)"
         }
     }
+    
 
 
     return (
         <NavigationContainer theme={theme === "dark" ? CustomDarkTheme : CustomDefaultTheme} >
             <Tab.Navigator
-                barStyle={{ height: 67, backgroundColor: theme === "dark" ? "#1E1F21" : "#F3EDF7",  }}
+                barStyle={{ height: 67, backgroundColor: theme === "dark" ? "#1E1F21" : "#F3EDF7" }}
                 theme={theme === 'dark' ? { colors: { secondaryContainer: '#41526c' } } : { colors: { secondaryContainer: '#BEC1C4' } }}
                 activeColor={theme === "dark" ? "#A7C7FB" : "#444746"}
                 inactiveColor={theme === "dark" ? '#C4C7C5' : "#444746"}

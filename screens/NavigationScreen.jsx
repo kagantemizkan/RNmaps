@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, StatusBar, Pressable, Keyboard, Image, Dimensions } from 'react-native';
-import { Searchbar, FAB, Text, Divider, Avatar } from 'react-native-paper';
+import { View, StatusBar, Pressable, Keyboard, Image, Dimensions, Share } from 'react-native';
+import { PanGestureHandler, FlatList, ScrollView } from "react-native-gesture-handler";
+import { Searchbar, FAB, Text, Divider, Avatar, Button } from 'react-native-paper';
 // Icons
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 // Gorhom Bottom Sheet
-import BottomSheet, { BottomSheetView, BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView, BottomSheetFlatList } from '@gorhom/bottom-sheet';
 // MapComponent 
 import MapComponent from '../components/MapComponent';
 // Voice recognition
@@ -28,7 +31,7 @@ const windowHeight = Dimensions.get('window').height;
 
 const NavigationScreen = () => {
 
-  const GOOGLE_PLACES_API_KEY = "AIzaSyCOwMmlEf95NH9VCJj7Ksb-4RIJZFruBu4"
+  const GOOGLE_PLACES_API_KEY = ""
   // i18n
   const { t } = useTranslation();
 
@@ -48,8 +51,12 @@ const NavigationScreen = () => {
   const [isListening, setIsListening] = useState(false)
   const [locationInfo, setLocationInfo] = useState()
   const [placePhotos, setPlacePhotos] = useState([])
+  const [searchResults, setSearchResults] = useState([])
+  const [placeSlider, setPlaceSlider] = useState(1)
+  const [toggleOpeningHours, setToggleOpeningHours] = useState(false)
 
   const animatedPosition = useSharedValue(0);
+  const slideAnimation = useSharedValue(30);
 
   const animatedFabStyle = useAnimatedStyle(() => {
     const translateY = animatedPosition.value >= 500 ? animatedPosition.value - 800 : -300;
@@ -57,6 +64,13 @@ const NavigationScreen = () => {
       transform: [{ translateY }],
     };
   });
+
+
+  const handleButtonPress = (newPosition) => {
+    slideAnimation.value = withTiming(newPosition === 0 ? 30 : newPosition === 1 ? 165 : 292, { duration: 300 });
+    setPlaceSlider(newPosition)
+  };
+
 
 
   /* useDerivedValue(() => {
@@ -115,7 +129,7 @@ const NavigationScreen = () => {
 
       const { latitude, longitude } = position.coords;
       const newLocation = { latitude, longitude };
-      
+
       console.log("newLocation: ", newLocation);
       console.log("oldLocation: ", oldUserLocation);
 
@@ -150,7 +164,7 @@ const NavigationScreen = () => {
         setLocationInfo(locationInfo);
       }
 
-      
+
     } catch (error) {
       console.error('Hata:', error);
     }
@@ -162,14 +176,53 @@ const NavigationScreen = () => {
     return data;
   };
 
-  const fetchAdditionalPlaceDetails = async (locationInfo) => {
-    const placeId = await fetchPlaceId(`${locationInfo.il} ${locationInfo.ilce} ${locationInfo.mahalle}`);
-    const photos = await fetchPlaceDetails(placeId);
-    let photoUrls = [];
-    if (photos && photos.length > 0) {
-      photoUrls = photos.slice(0, 15).map(photo => fetchPlacePhotoUrl(photo.photo_reference));
+  const fetchAdditionalPlaceDetails = async (locationInfo, getingPlaceId) => {
+    if (!getingPlaceId) {
+      const placeId = await fetchPlaceId(`${locationInfo.il} ${locationInfo.ilce} ${locationInfo.mahalle}`);
+      const photos = await fetchPlaceDetails(placeId);
+      let photoUrls = [];
+      if (photos && photos.length > 0) {
+        photoUrls = photos.slice(0, 15).map(photo => fetchPlacePhotoUrl(photo.photo_reference));
+      }
+      return photoUrls;
+    } else {
+      const data = await fetchPlaceDetails(getingPlaceId);
+      let photoUrls = [];
+      let placeDetails = {};
+
+      if (data) {
+        // Fotoğraf URL'lerini al
+        photoUrls = data.photos.slice(0, 15).map(photo => fetchPlacePhotoUrl(photo.photo_reference));
+        console.log(" ")
+        console.log(" ")
+        console.log("photoUrls: ", photoUrls)
+        console.log("AAAAA: ", data.website)
+        console.log("AAAAA: ", data.url)
+        console.log("AAAAA: ", data.current_opening_hours.periods,)
+        console.log("AAAAA: ", data.current_opening_hours.weekday_text)
+        console.log(" ")
+        console.log(" ")
+        console.log(" ")
+        console.log(" ")
+
+
+        // Diğer detayları al
+        placeDetails = {
+          website: data.website,
+          url: data.url,
+          periods: data.current_opening_hours.periods,
+          weekday_text: data.current_opening_hours.weekday_text
+        };
+      }
+      console.log(" ")
+      console.log(" ")
+      console.log("placeDetails: ", placeDetails)
+      console.log(" ")
+      console.log(" ")
+      return { photoUrls, placeDetails };
     }
-    return photoUrls;
+
+
   };
 
   useEffect(() => {
@@ -241,11 +294,11 @@ const NavigationScreen = () => {
     console.log("handleSubmit: ", text)
   };
 
-  // Set start route onPress
+  /* Set start route onPress (2. FAB)
   const startRoute = () => {
     console.log("startRoute: ", userLocation)
     setStartPoint(userLocation)
-  }
+  } */
 
   const animatedSearchbarStyle = useAnimatedStyle(() => {
     return {
@@ -290,10 +343,10 @@ const NavigationScreen = () => {
     );
     const data = await response.json();
     console.log("fetchPlaceDetails: ", data)
-    return data.result.photos;
+    return data.result;
   };
 
-  const fetchPlacePhotoUrl = (photoReference, maxWidth = 800) => {
+  const fetchPlacePhotoUrl = (photoReference, maxWidth = 2400) => {
     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photoreference=${photoReference}&key=${GOOGLE_PLACES_API_KEY}`;
   };
 
@@ -302,12 +355,88 @@ const NavigationScreen = () => {
   }, [])
 
   const handleSheetChanges = useCallback((index) => {
-    console.log("Current snap point index:", index);
-    if (index === 2) {
-      fetchLocationDetails()
+    if (!searchText) {
+      console.log("Current snap point index:", index);
+      if (index === 2) {
+        fetchLocationDetails()
+      }
     }
   }, []);
 
+  const fetchPlacesInArea = async (searchQuery, location, radius) => {
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&location=${location.latitude},${location.longitude}&radius=${radius}&key=${GOOGLE_PLACES_API_KEY}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.results;
+    } catch (error) {
+      console.error("Error fetching places in area:", error);
+      return [];
+    }
+  };
+
+
+  const handleSubmitttt = async () => {
+    Keyboard.dismiss();
+
+    const results = await fetchPlacesInArea(searchText, userLocation, 3000);
+    setSearchResults(results);
+
+    console.log("handleSubmittt: ", searchText, results);
+
+    if (results.length === 1) {
+      const singleResult = results[0];
+      console.log("Single result: ", singleResult);
+
+      if (singleResult.photos && singleResult.photos.length > 0) {
+
+        const { photoUrls, placeDetails } = await fetchAdditionalPlaceDetails(null, singleResult.place_id);
+
+        console.log("Photo URLs FROM handleSubmitttt meme: ", photoUrls);
+
+        // photoUrls alanını ekleyerek veriyi güncelle
+        setSearchResults(prevResults => prevResults.map(result => ({
+          ...result,
+          photoUrls: photoUrls,
+          placeDetails: placeDetails
+        })));
+      } else {
+        console.log("No photos available for this place.");
+      }
+    } else {
+      console.log("Multiple results received.");
+    }
+  };
+
+  useEffect(() => {
+    console.log("BIKTIM: ", searchResults)
+  }, [searchResults])
+
+  const onShare = async (url) => {
+    try {
+      const result = await Share.share({
+        url: url
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  function formatTime(time) {
+    const timeString = time.toString();
+    const hours = timeString.slice(0, 2);
+    const minutes = timeString.slice(2);
+    return `${hours}:${minutes}`;
+  }
 
 
   return (
@@ -325,21 +454,266 @@ const NavigationScreen = () => {
         snapPoints={[20, 75, '30%', '95%']}>
 
 
-        {searchText ?
-          <Text>
-            {searchText}
-          </Text>
-          :
+        {searchText ? (
+          searchResults.length === 1 ? (
+            <BottomSheetFlatList
+              data={searchResults}
+              keyExtractor={(index) => index.toString()}
+              renderItem={({ item, index }) => (
+                <View style={{ display: "flex", flexDirection: "column", gap: 12 }} key={index}>
+                  <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", marginHorizontal: 20 }}>
+                    <View style={{ gap: 4 }}>
+                      <Text style={[theme === "dark" ? { color: "white" } : { color: "black" }, { fontSize: 28, marginBottom: 4, maxWidth: windowWidth / 1.7 }]} >{item.name}</Text>
+
+                      <View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
+                        <View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2.5 }}>
+                          <Text style={{ fontSize: 16, marginRight: 3 }} >{item.rating}</Text>
+                          {[...Array(5)].map((_, index) => (
+                            <FontAwesome
+                              size={16}
+                              key={index}
+                              name="star"
+                              style={{ color: index < Math.round(item.rating) ? "#f9bc02" : "gray" }}
+                            />
+                          ))}
+                        </View>
+                        <Text style={{ fontSize: 16 }}>({item.user_ratings_total})</Text>
+                      </View>
+
+                      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                        <Text style={{ color: item.opening_hours.open_now ? "#84c896" : "#E0574D", fontSize: 15 }} >{item.opening_hours.open_now ? "Açık" : "Kapalı"}</Text>
+                        <Text style={{ fontSize: 15 }}>Açılış saati: ÖÖ 10:00</Text>
+                      </View>
+
+                      <View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 3 }}>
+                        <Text style={{ fontSize: 16 }}>{t(item.types[0])}</Text>
+                        <Entypo name="dot-single" />
+                        <FontAwesome6 size={16} name="wheelchair-move" />
+                        <Entypo name="dot-single" />
+                        <FontAwesome6 size={16} name="car" />
+                        <Text style={{ marginLeft: 4 }}>11 dk.</Text>
+                      </View>
+
+                      {/*<Text>{item.formatted_address}</Text>*/}
+                    </View>
+
+                    <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 18 }}>
+
+                      {item.placeDetails && <Pressable onPress={() => onShare(item.placeDetails.url)} style={{ backgroundColor: "#303030", padding: 6, borderRadius: 30 }} >
+                        <Entypo color={theme === "dark" ? "white" : "black"} size={24} name="share" />
+                      </Pressable>}
+                      <Pressable style={{ backgroundColor: "#303030", padding: 6, borderRadius: 30 }} >
+                        <AntDesign color={theme === "dark" ? "white" : "black"} size={24} name="close" />
+                      </Pressable>
+                    </View>
+                  </View>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <Button
+                      labelStyle={{ fontSize: 16 }}
+                      buttonColor='#89b4f8'
+                      textColor='#202125'
+                      icon={() => <MaterialIcons name="directions" color="#202125" size={22} />}
+                      mode="contained"
+                      onPress={() => console.log('Pressed')}
+                      style={{ marginLeft: 20 }} // Sağa boşluk ver
+                    >
+                      Yol tarifi
+                    </Button>
+                    <Button
+                      labelStyle={{ fontSize: 16 }}
+                      textColor='#88abe3'
+                      icon={() => <FontAwesome6 color="#88abe3" size={18} name="location-arrow" />}
+                      mode="outlined"
+                      onPress={() => console.log('Pressed')}
+                      style={{ marginLeft: 10, borderColor: "gray" }} // Sağa boşluk ver
+                    >
+                      Başla
+                    </Button>
+                    <Button
+                      labelStyle={{ fontSize: 16 }}
+                      textColor='#88abe3'
+                      icon={() => <FontAwesome6 color="#88abe3" size={18} name="phone" />}
+                      mode="outlined"
+                      onPress={() => console.log('Pressed')}
+                      style={{ marginLeft: 10, borderColor: "gray" }} // Sağa boşluk ver
+                    >
+                      Ara
+                    </Button>
+                    <Button
+                      labelStyle={{ fontSize: 16 }}
+                      textColor='#88abe3'
+                      icon={() => <FontAwesome6 color="#88abe3" size={18} name="bookmark" />}
+                      mode="outlined"
+                      onPress={() => console.log('Pressed')}
+                      style={{ marginLeft: 10, borderColor: "gray" }}
+                    >
+                      Kaydet
+                    </Button>
+                    <Button
+                      labelStyle={{ fontSize: 16 }}
+                      textColor='#88abe3'
+                      icon={() => <Entypo name="dots-three-horizontal" color="#88abe3" size={18} />}
+                      mode="outlined"
+                      onPress={() => console.log('Pressed')}
+                      style={{ marginLeft: 10, marginRight: 20, borderColor: "gray" }}
+                    >
+                      Diğer
+                    </Button>
+                  </ScrollView>
+                  <ScrollView style={{ marginTop: 10 }} horizontal showsHorizontalScrollIndicator={false}>
+                    {item.photoUrls && item.photoUrls.length > 0 ? (
+                      item.photoUrls.map((url, urlIndex) => {
+                        if ([0, 3, 6, 9, 12, 15, 18, 20].includes(urlIndex)) {
+                          return (
+                            <Image
+                              key={urlIndex}
+                              source={{ uri: url }}
+                              style={{
+                                width: windowWidth / 1.6,
+                                height: 300,
+                                borderRadius: 14,
+                                marginRight: 10,
+                                marginLeft: urlIndex === 0 && 20
+                              }}
+                            />)
+                        }
+                        if ([1, 4, 7, 10, 13, 16, 19, 21].includes(urlIndex)) {
+                          return (
+                            <View key={urlIndex} style={{ flexDirection: "column", gap: 10 }}>
+                              <Image
+                                source={{ uri: item.photoUrls[urlIndex] }}
+                                style={{
+                                  width: windowWidth / 2.8,
+                                  height: 145,
+                                  borderRadius: 14,
+                                  marginRight: 10
+                                }}
+                              />
+                              <Image
+                                source={{ uri: item.photoUrls[urlIndex + 1] }}
+                                style={{
+                                  width: windowWidth / 2.8,
+                                  height: 145,
+                                  borderRadius: 14,
+                                  marginRight: 10
+                                }}
+                              />
+                            </View>)
+                        }
+                      })
+                    ) : (
+                      <Text>Yükleniyor...</Text>
+                    )}
+                  </ScrollView>
+                  <View style={{ flexDirection: "column", marginTop: 8 }}>
+                    <View style={{ flexDirection: "row", gap: 8, justifyContent: "space-between", paddingHorizontal: 20 }}>
+                      <View style={{ flexDirection: "column", alignItems: "center" }}>
+                        <Button onPress={() => handleButtonPress(0)} style={{ borderRadius: 0 }} mode="text" labelStyle={[placeSlider === 0 ? { color: "#88abe3" } : { color: "#A9A9A9" }, { fontSize: 15, fontWeight: 700 }]}>
+                          GENEL BAKIŞ
+                        </Button>
+                      </View>
+                      <View>
+                        <Button onPress={() => handleButtonPress(1)} style={{ borderRadius: 0 }} mode="text" labelStyle={[placeSlider === 1 ? { color: "#88abe3" } : { color: "#A9A9A9" }, { fontSize: 15, fontWeight: 700 }]}>
+                          YORUMLAR
+                        </Button>
+                      </View>
+                      <View>
+                        <Button onPress={() => handleButtonPress(2)} style={{ borderRadius: 0 }} mode="text" labelStyle={[placeSlider === 2 ? { color: "#88abe3" } : { color: "#A9A9A9" }, { fontSize: 15, fontWeight: 700 }]}>
+                          HAKKINDA
+                        </Button>
+                      </View>
+                    </View>
+                    <Animated.View style={{ transform: [{ translateX: slideAnimation }], height: 3, backgroundColor: "#88abe3", borderTopLeftRadius: 100, borderTopRightRadius: 100, width: 100 }} />
+                    <View style={{
+                      backgroundColor: '#333333', shadowOffset: { width: 0, height: 2, }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 3, height: 2,
+                    }} />
+                  </View>
+
+
+                  {item.placeDetails ? (
+                    <View>
+
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 24, marginHorizontal: 20, marginBottom: 12, marginTop: 4 }}>
+                        <Ionicons color="#88abe3" size={24} name="location-outline" />
+                        <Text style={{ fontSize: 17, lineHeight: 26 }}>{item.formatted_address}</Text>
+                      </View>
+
+                      <Divider bold={true} />
+
+                      {toggleOpeningHours ?
+                        <Pressable onPress={() => setToggleOpeningHours(!toggleOpeningHours)} android_ripple={{ color: 'gray', borderless: false }} style={{ flexDirection: "row", justifyContent: "space-between", gap: 24, paddingHorizontal: 20, paddingVertical: 16 }}>
+                          <View style={{ flexDirection: "row", gap: 24 }}>
+                            <Feather color="#88abe3" size={24} name="clock" />
+                            <View style={{ gap: 18 }}>
+                              {item.placeDetails.periods.map((period, index) => (
+                                <Text style={{ fontSize: 17 }} key={index}>{t(`day_${period.open.day}`)}</Text>
+                              ))}
+                            </View>
+                            <View style={{ gap: 18 }}>
+                              {item.placeDetails.periods.map((period, index) => (
+                                <Text style={{ fontSize: 17 }} key={index}>{t("A.M.")} {formatTime(period.open.time)} - {t("P.M.")} {formatTime(period.close.time)}</Text>
+                              ))}
+                            </View>
+                          </View>
+                          <FontAwesome6 size={20} name="angle-up" />
+
+                        </Pressable>
+                        :
+                        <Pressable onPress={() => setToggleOpeningHours(!toggleOpeningHours)} android_ripple={{ color: 'gray', borderless: false }} style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 24, paddingHorizontal: 20, paddingVertical: 16 }}>
+                          <View style={{ flexDirection: "row", alignItems: "center", gap: 24 }}>
+                            <Feather color="#88abe3" size={24} name="clock" />
+                            <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+                              <Text style={{ color: item.opening_hours.open_now ? "#84c896" : "#E0574D", fontSize: 17 }} >{item.opening_hours.open_now ? "Açık" : "Kapalı"}</Text>
+                              <Entypo name="dot-single" />
+                              <Text style={{ fontSize: 17 }}>Açılış saati: {formatTime(item.placeDetails.periods[0].open.time)}</Text>
+                            </View>
+                          </View>
+
+                          <FontAwesome6 size={20} name="angle-down" />
+                        </Pressable>}
+
+
+                      <Divider bold={true} />
+
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: 24, paddingHorizontal: 20, paddingVertical: 16 }}>
+                        <FontAwesome color="#88abe3" size={24} name="globe" />
+                        <Text style={{ fontSize: 17 }}>{item.placeDetails.website}</Text>
+                      </View>
+
+                      <Divider bold={true} />
+
+                    </View>
+                  ) : (
+                    <Text>Bilgiler Yükleniyor...</Text>
+                  )}
+                </View>
+              )}
+              contentContainerStyle={[theme === "dark" ? { backgroundColor: "#202125" } : { backgroundColor: "#FEF7FF" }, { alignItems: "center" }]}
+            />
+          ) : (
+            <BottomSheetFlatList
+              data={searchResults}
+              keyExtractor={(index) => index.toString()}
+              renderItem={({ item, index }) => (
+                <View key={index} style={{ padding: 20 }}>
+                  <Text>{item.name}</Text>
+                  <Text>{item.formatted_address}</Text>
+                </View>
+              )}
+              contentContainerStyle={[theme === "dark" ? { backgroundColor: "#202125" } : { backgroundColor: "#FEF7FF" }, { alignItems: "center" }]}
+            />
+          )
+        ) :
           <BottomSheetFlatList
             ItemSeparatorComponent={() => <Divider bold={true} />}
-            ListHeaderComponent={() =>
+            ListHeaderComponent={() => (
               <View style={{ width: windowWidth }}>
                 <Text style={[theme === "dark" ? { backgroundColor: "#202125", color: "white" } : { backgroundColor: "#FEF7FF", color: "black" }, { fontSize: 28, paddingBottom: 20, paddingHorizontal: 20, marginTop: -1 }]}>
                   {locationInfo && locationInfo.il} hakkındaki en son bilgiler
                 </Text>
                 <Divider bold={true} />
               </View>
-            }
+            )}
             stickyHeaderIndices={[0]}
             data={placePhotos}
             keyExtractor={(item, index) => index.toString()}
@@ -372,7 +746,6 @@ const NavigationScreen = () => {
             contentContainerStyle={[theme === "dark" ? { backgroundColor: "#202125" } : { backgroundColor: "#FEF7FF" }, { alignItems: "center" }]}
             ListEmptyComponent={<Text>Loading photos...</Text>}
           />}
-
 
       </BottomSheet>
 
@@ -439,7 +812,7 @@ const NavigationScreen = () => {
               justifyContent: 'center', // Center the content vertically
               height: 64, // Set a fixed height to ensure the button is square
             }}
-            onPress={startRoute} // Make sure to invoke the onPress function
+            onPress={handleSubmitttt} // Make sure to invoke the onPress function
           />
         }
       </Animated.View>
