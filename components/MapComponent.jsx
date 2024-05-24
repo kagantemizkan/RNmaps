@@ -191,7 +191,7 @@ const MapComponent = ({ mapRef }) => {
           language={i18n.language}
           origin={startPoint}
           destination={searchText}
-          apikey={"AIzaSyCOwMmlEf95NH9VCJj7Ksb-4RIJZFruBu4"}
+          apikey={""}
           strokeWidth={6}
           mode={"WALKING"}
           strokeColor="#00affe"
