@@ -20,7 +20,7 @@ This project is a Google Maps clone that focuses on core navigation features. It
 <img src="https://github.com/kagantemizkan/mapsForBlinds/assets/46727689/3febbfbd-f26a-4b92-bada-ed49d7919549" alt="maps" width="500" />
 
 ### Multiple Search Results
-<img src="https://github.com/kagantemizkan/RNmaps/assets/46727689/3db80b35-d9ff-4dea-ba6d-ae89acb4e1fb" alt="maps" width="500" />
+<img src="https://github.com/kagantemizkan/RNmaps/assets/46727689/3db80b35-d9ff-4dea-ba6d-ae89acb4e1fb" alt="maps" width="260" />
 
 ### Video
 
